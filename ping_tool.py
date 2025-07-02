@@ -41,6 +41,7 @@ class PingTracerouteApp:
         
         # Initialize variables
         self.is_running = False
+        self.current_process = None
         
     def setup_styles(self):
         """Configure custom styles for the application"""
@@ -64,6 +65,15 @@ class PingTracerouteApp:
                        foreground='#ffffff',
                        borderwidth=2,
                        relief='solid')
+        
+        # Configure radio button styles
+        style.configure('Radio.TRadiobutton',
+                       background='#3c3c3c',
+                       foreground='#ffffff',
+                       font=('Segoe UI', 10))
+        style.map('Radio.TRadiobutton',
+                 background=[('selected', '#00ff88'), ('active', '#4a4a4a')],
+                 foreground=[('selected', '#000000'), ('active', '#ffffff')])
         
         style.configure('Button.TButton', 
                        background='#00ff88', 
@@ -124,12 +134,12 @@ class PingTracerouteApp:
         ping_count_frame = ttk.Frame(ping_frame, style='Input.TFrame')
         ping_count_frame.pack(fill=tk.X)
         
-        for i, count in enumerate(["1", "4", "8", "10"]):
+        for i, count in enumerate(["1", "4", "8", "10", "∞"]):
             rb = ttk.Radiobutton(ping_count_frame, 
                                 text=count, 
                                 variable=self.ping_count, 
                                 value=count,
-                                style='Input.TLabel')
+                                style='Radio.TRadiobutton')
             rb.pack(side=tk.LEFT, padx=(0, 20))
         
     def create_buttons_section(self):
@@ -252,7 +262,13 @@ class PingTracerouteApp:
         """Execute ping command"""
         try:
             count = self.ping_count.get()
-            command = ['ping', '-n', count, target]
+            
+            # Handle unlimited pings
+            if count == "∞":
+                command = ['ping', '-t', target]  # -t flag for continuous ping
+            else:
+                command = ['ping', '-n', count, target]
+            
             creationflags = 0
             if os.name == 'nt':
                 creationflags = subprocess.CREATE_NO_WINDOW
@@ -265,21 +281,35 @@ class PingTracerouteApp:
                 universal_newlines=True,
                 creationflags=creationflags
             )
+            
+            # Store process reference for stopping
+            self.current_process = process
+            
             while True:
                 output = process.stdout.readline()
                 if output == '' and process.poll() is not None:
                     break
                 if output:
                     self.root.after(0, self.update_results, output)
-            # Get final result
-            return_code = process.poll()
-            if return_code == 0:
-                self.root.after(0, self.update_results, "\n✅ Ping completed successfully!\n")
-            else:
-                self.root.after(0, self.update_results, "\n❌ Ping failed!\n")
+                    
+                # Check if operation was stopped
+                if not self.is_running:
+                    process.terminate()
+                    self.root.after(0, self.update_results, "\n⏹️ Ping stopped by user\n")
+                    break
+            
+            # Get final result only if not stopped
+            if self.is_running:
+                return_code = process.poll()
+                if return_code == 0:
+                    self.root.after(0, self.update_results, "\n✅ Ping completed successfully!\n")
+                else:
+                    self.root.after(0, self.update_results, "\n❌ Ping failed!\n")
+                    
         except Exception as e:
             self.root.after(0, self.update_results, f"\n❌ Error: {str(e)}\n")
         finally:
+            self.current_process = None
             self.root.after(0, self.finish_operation)
     
     def start_traceroute(self):
@@ -326,21 +356,35 @@ class PingTracerouteApp:
                 universal_newlines=True,
                 creationflags=creationflags
             )
+            
+            # Store process reference for stopping
+            self.current_process = process
+            
             while True:
                 output = process.stdout.readline()
                 if output == '' and process.poll() is not None:
                     break
                 if output:
                     self.root.after(0, self.update_results, output)
-            # Get final result
-            return_code = process.poll()
-            if return_code == 0:
-                self.root.after(0, self.update_results, "\n✅ Traceroute completed successfully!\n")
-            else:
-                self.root.after(0, self.update_results, "\n❌ Traceroute failed!\n")
+                    
+                # Check if operation was stopped
+                if not self.is_running:
+                    process.terminate()
+                    self.root.after(0, self.update_results, "\n⏹️ Traceroute stopped by user\n")
+                    break
+            
+            # Get final result only if not stopped
+            if self.is_running:
+                return_code = process.poll()
+                if return_code == 0:
+                    self.root.after(0, self.update_results, "\n✅ Traceroute completed successfully!\n")
+                else:
+                    self.root.after(0, self.update_results, "\n❌ Traceroute failed!\n")
+                    
         except Exception as e:
             self.root.after(0, self.update_results, f"\n❌ Error: {str(e)}\n")
         finally:
+            self.current_process = None
             self.root.after(0, self.finish_operation)
     
     def update_results(self, text):
@@ -357,6 +401,11 @@ class PingTracerouteApp:
     def stop_operations(self):
         """Stop running operations"""
         self.is_running = False
+        if self.current_process:
+            try:
+                self.current_process.terminate()
+            except:
+                pass
         self.status_var.set("Operation stopped by user")
         self.update_buttons_state()
     
