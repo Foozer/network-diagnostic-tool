@@ -33,12 +33,6 @@ A modern, user-friendly Windows GUI application for performing ping and tracerou
 - Status indicators and progress feedback
 - Configurable ping options including unlimited mode
 
-> **Note**: To add your own screenshots:
-> 1. Take screenshots of your application running
-> 2. Save them in the `screenshots/` folder
-> 3. Update the image paths above to match your screenshot filenames
-> 4. Or use GitHub's image hosting by dragging screenshots into issues and copying the URLs
-
 ## Installation
 
 ### Option 1: Run from Source (Development)
