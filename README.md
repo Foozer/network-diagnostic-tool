@@ -8,17 +8,36 @@ A modern, user-friendly Windows GUI application for performing ping and tracerou
 - 🛤️ **Traceroute**: Trace the network path to a destination
 - 🎨 **Modern UI**: Dark theme with green accents for a professional look
 - ⚡ **Real-time Results**: Live output display with scrolling text area
-- 🔧 **Configurable**: Choose number of ping packets (1, 4, 8, or 10)
+- 🔧 **Configurable**: Choose number of ping packets (1, 4, 8, 10, or ∞)
 - 🛡️ **No Admin Required**: Runs without elevated privileges
 - 📱 **Responsive Design**: Clean, intuitive interface
 
 ## Screenshots
 
-The application features:
+### Main Application Interface
+![Main Interface](screenshots/main-interface.png)
+*The main application window showing the dark theme with green accents*
+
+### Ping Test Results
+![Ping Results](screenshots/ping-results.png)
+*Real-time ping test results displayed in the application*
+
+### Traceroute Results
+![Traceroute Results](screenshots/traceroute-results.png)
+*Traceroute output showing network path analysis*
+
+### Application Features
 - Dark theme with green accent colors
 - Professional layout with clear sections
 - Real-time results display
 - Status indicators and progress feedback
+- Configurable ping options including unlimited mode
+
+> **Note**: To add your own screenshots:
+> 1. Take screenshots of your application running
+> 2. Save them in the `screenshots/` folder
+> 3. Update the image paths above to match your screenshot filenames
+> 4. Or use GitHub's image hosting by dragging screenshots into issues and copying the URLs
 
 ## Installation
 
@@ -58,7 +77,7 @@ The application features:
    - Type an IP address (e.g., `8.8.8.8`) or hostname (e.g., `google.com`)
    - The application validates input format automatically
 
-3. **Configure Ping**: Select the number of ping packets (1, 4, 8, or 10)
+3. **Configure Ping**: Select the number of ping packets (1, 4, 8, 10, or ∞ for unlimited)
 
 4. **Run Tests**:
    - Click **🔍 Ping Test** to perform a ping test
@@ -85,7 +104,7 @@ The application features:
 
 ## Network Commands Used
 
-- **Ping**: `ping -n [count] [target]`
+- **Ping**: `ping -n [count] [target]` or `ping -t [target]` for unlimited
 - **Traceroute**: `tracert [target]`
 
 ## Deployment Notes
